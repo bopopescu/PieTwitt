@@ -13,7 +13,12 @@ config = {
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor()
 
+# clear current table
 query = ("DELETE FROM paitweets")
+
+# drop the entire table
+# query = ("DROP TABLE pietweets")
+
 cursor.execute(query)
 
 # Make sure data is committed to the database

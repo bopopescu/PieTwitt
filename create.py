@@ -4,12 +4,13 @@ from mysql.connector import errorcode
 DB_NAME = 'PieDB'
 
 TABLES = {}
-TABLES['paitweets'] = (
-	"CREATE TABLE `paitweets` ("
+TABLES['pietweets'] = (
+	"CREATE TABLE `pietweets` ("
 	"  `tweet_id` bigint NOT NULL,"
 	"  `username` varchar(32) NOT NULL,"
 	"  `geo_lat` float(53) NOT NULL,"
 	"  `geo_long` float(53) NOT NULL,"
+	"  `keyword` varchar(32) NOT NULL,"
 	"  `text` varchar(255) NOT NULL,"
 	"  `timestamp` datetime NOT NULL,"
 	"  PRIMARY KEY (`tweet_id`)"
