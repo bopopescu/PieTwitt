@@ -13,7 +13,7 @@ config = {
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor()
 
-qadd_one = ("INSERT INTO pitweets "
+qadd_one = ("INSERT INTO paitweets "
                "(tweet_id, username, geo_lat, geo_long, text, timestamp) "
                "VALUES (%s, %s, %s, %s, %s, %s)")
 data_one = (572844984476545024, 'PieMaster', 60.00, 60.00, '@carlsontinashe @DearAngelbert @mafaizer those who admit their hunger shall b given food', '2015-03-03 22:17:56')

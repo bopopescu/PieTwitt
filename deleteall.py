@@ -13,7 +13,7 @@ config = {
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor()
 
-query = ("DELETE FROM pitweets")
+query = ("DELETE FROM paitweets")
 cursor.execute(query)
 
 # Make sure data is committed to the database

@@ -13,7 +13,7 @@ config = {
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor()
 
-query = ("SELECT tweet_id, username, geo_lat, geo_long, text, timestamp FROM pitweets")
+query = ("SELECT tweet_id, username, geo_lat, geo_long, text, timestamp FROM paitweets")
 
 cursor.execute(query)
 
