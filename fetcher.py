@@ -74,7 +74,7 @@ class StdOutListener(StreamListener):
 			geoLong = location[1]
 
 			# building query and query data
-			qadd_one = ("INSERT INTO paitweets "
+			qadd_one = ("INSERT INTO pietweets "
                "(tweet_id, username, geo_lat, geo_long, text, timestamp) "
                "VALUES (%s, %s, %s, %s, %s, %s)")
 			data_one = (tweetId, user, geoLat, geoLong, text, tmstr)
@@ -114,7 +114,7 @@ try:
 	print("Listening to filter stream...")
 
 	# put steam function in a while loop to suppress incompleteread error
-	while True:
+	for i in range(10000):
 		stream.filter(locations=[-179,-89,179,89])
 
 except mysql.connector.Error as err:

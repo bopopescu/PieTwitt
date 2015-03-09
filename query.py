@@ -11,18 +11,19 @@ config = {
 }
 
 cnx = mysql.connector.connect(**config)
-cursor = cnx.cursor()
 
-query = ("SELECT tweet_id, username, geo_lat, geo_long, text, timestamp FROM paitweets")
+# ------------------Display all rows from table paitweets----------------------
+# cursor = cnx.cursor()
 
-cursor.execute(query)
+# query = ("SELECT id, tweet_id, username, geo_lat, geo_long, text, timestamp FROM pietweets")
 
-for (tweet_id, username, geo_lat, geo_long, text, timestamp) in cursor:
-	print('----------------\n')
-	print ("tweetId: {}\nuser name: {}\nlocation: [{},{}]\nkeywords: {}\ntimestamp: {}\n".format(tweet_id, username, geo_lat, geo_long, text, timestamp))
+# cursor.execute(query)
 
-cursor.close()
+# for (id, tweet_id, username, geo_lat, geo_long, text, timestamp) in cursor:
+# 	print('----------------\n')
+# 	print ("ID: {}\ntweetId: {}\nuser name: {}\nlocation: [{},{}]\nkeywords: {}\ntimestamp: {}\n".format(id, tweet_id, username, geo_lat, geo_long, text, timestamp))
 
+# cursor.close()
 # ------------------check the size of all tables in database----------------------
 cursor = cnx.cursor()
 
@@ -33,6 +34,7 @@ cursor.execute(query2)
 for (TABLE_NAME, table_rows, data_length, index_length, MB) in cursor:
 	print('================\n')
 	print ("Table Name: {}\nNum rows: {}\nData length: {}\nIndex length: {}\nTable size in MB: {}\n".format(TABLE_NAME, table_rows, data_length, index_length, MB))
+	
 cursor.close()
 
 cnx.close()
