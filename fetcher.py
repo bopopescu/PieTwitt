@@ -86,7 +86,7 @@ class StdOutListener(StreamListener):
 			cnx.commit()
 			
 			print "<3--------------------------------SUCCESS--------------------------------<3"
-
+		
 		# closing the cursor for this operation
 		cursor.close()
 		return True
@@ -115,7 +115,8 @@ try:
 
 	# put steam function in a while loop to suppress incompleteread error
 	for i in range(10000):
-		stream.filter(locations=[-179,-89,179,89])
+		stream.filter(locations=[-179.9,-89.9,179.9,89.9])
+		# stream.filter()
 
 except mysql.connector.Error as err:
 	if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:

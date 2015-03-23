@@ -64,3 +64,5 @@ for name, ddl in TABLES.iteritems():
 cursor.close()
 cnx.close()
 
+
+
