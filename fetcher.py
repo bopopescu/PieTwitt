@@ -23,6 +23,11 @@ import mysql.connector
 from alchemyapi import AlchemyAPI
 alchemyapi = AlchemyAPI()
 
+# boto
+import boto.sqs
+from boto.sqs.message import Message
+import base64
+
 
 # ------------------------End of Library Imports-----------------------------------------
 
@@ -46,13 +51,39 @@ config = {
 def analyzeSentiment(text):
 	myText = text
 	response = alchemyapi.sentiment("text", myText)
-	if response["docSentiment"]:
+	if response["docSentiment"]["type"] != None:
 		sentScore = response["docSentiment"]["type"]
 		print "text: ", text
 		print "Sentiment: ", sentScore
 		return sentScore
 	else:
 		return 0
+
+
+def writeToSQS(q, geoLat, geoLong, sentimentStat, text):
+	m = Message()
+	m.message_attributes = {
+		"geoLat": {
+			"data_type": "String",
+			"string_value": geoLat
+		},
+		"geoLong": {
+			"data_type": "String",
+			"string_value": geoLong
+		},
+		"sentimentStat": {
+			"data_type": "String",
+			"string_value": sentimentStat
+		},
+		"text": {
+			"data_type": "String",
+			"string_value": text
+		}
+
+	}
+	m.set_body("Sugar rush.")
+	q.write(m)
+
 
 
 class StdOutListener(StreamListener):
@@ -85,18 +116,16 @@ class StdOutListener(StreamListener):
 		if user == '' or tweetId == '' or tmstr == '' or text == '' or location == '':
 			# print summary of tweet
 			print "X---------------------------------INVALID---------------------------------X"
-			print('%s\n%s\n%s\n%s\n%s\n\n ----------------\n' % (user, tweetId, tmstr, location, text))
+			# print('%s\n%s\n%s\n%s\n%s\n\n ----------------\n' % (user, tweetId, tmstr, location, text))
 		else:		
 
 			# sentiment analysis through alchemy API
-			score = analyzeSentiment(text)
+			sentimentStat = analyzeSentiment(text)
 
 			# only insert into DB if exist sentiment score
-			if score == 0:
+			if sentimentStat == 0:
 				print "No sentiment score ;_;"
 			else:
-
-
 				# insertion work to table pitweets
 				tweetId = int(tweetId)
 				geoLat = location[0]
@@ -113,6 +142,11 @@ class StdOutListener(StreamListener):
 
 				# Make sure data is committed to the database
 				cnx.commit()
+
+				# write sentiment result to SQS
+				conn = boto.sqs.connect_to_region("us-west-2")
+				q = conn.get_queue('kitkat')
+				writeToSQS(q, geoLat, geoLong, sentimentStat, text)
 				
 				print "<3--------------------------------SUCCESS--------------------------------<3"
 		
@@ -146,7 +180,7 @@ try:
 	for i in range(1000):
 		try:
 			# check out -180, -90, 180, 90
-			stream.filter(track=["weather"], locations=[-179.9,-89.9,179.9,89.9])
+			stream.filter(track=["weather"])
 		except RuntimeError:
 			print "OHNOOOOO"
 			quit()
