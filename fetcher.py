@@ -114,9 +114,13 @@ try:
 	print("Listening to filter stream...")
 
 	# put steam function in a while loop to suppress incompleteread error
-	for i in range(10000):
-		stream.filter(locations=[-179.9,-89.9,179.9,89.9])
-		# stream.filter()
+	for i in range(1000):
+		try:
+			# check out -180, -90, 180, 90
+			stream.filter(locations=[-179.9,-89.9,179.9,89.9])
+		except RuntimeError:
+			print "OHNOOOOO"
+			quit()
 
 except mysql.connector.Error as err:
 	if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
