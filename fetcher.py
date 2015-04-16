@@ -23,10 +23,12 @@ import mysql.connector
 from alchemyapi import AlchemyAPI
 alchemyapi = AlchemyAPI()
 
-# boto
+# boto SQS 
 import boto.sqs
 from boto.sqs.message import Message
-import base64
+
+#boto SNS
+import boto.sns
 
 
 # ------------------------End of Library Imports-----------------------------------------
@@ -46,7 +48,14 @@ config = {
   'raise_on_warnings': True,
 }
 
+# SNS topic arn
+# kitkatTopic
+# topicarn = "arn:aws:sns:us-west-2:870592896542:kitkatTopic"
+# kitkatTopic2
+topicarn = "arn:aws:sns:us-west-2:870592896542:kitkatTopic2"
+
 # ------------------------End of DB credientials-----------------------------------------
+successCount = 0
 
 def analyzeSentiment(text):
 	myText = text
@@ -58,7 +67,6 @@ def analyzeSentiment(text):
 		return sentScore
 	else:
 		return 0
-
 
 def writeToSQS(q, geoLat, geoLong, sentimentStat, text):
 	m = Message()
@@ -79,10 +87,20 @@ def writeToSQS(q, geoLat, geoLong, sentimentStat, text):
 			"data_type": "String",
 			"string_value": text
 		}
-
 	}
 	m.set_body("Sugar rush.")
 	q.write(m)
+
+def publishToSNS(packageNum):
+	# connect to SNS for publishing to kitkatTopic
+	c = boto.sns.connect_to_region("us-west-2")
+	
+	message = "check out your SQS for three additional sentiments."
+	message_subject = "Package number:" + str(packageNum)
+
+	publication = c.publish(topicarn, message, subject=message_subject)
+
+	print publication
 
 
 
@@ -147,6 +165,14 @@ class StdOutListener(StreamListener):
 				conn = boto.sqs.connect_to_region("us-west-2")
 				q = conn.get_queue('kitkat')
 				writeToSQS(q, geoLat, geoLong, sentimentStat, text)
+
+				# publish to kitkatTopic every 5 success count
+				global successCount
+				successCount += 1
+
+				if successCount%3 == 0 and successCount != 0:
+					packageNum = successCount/3
+					publishToSNS(packageNum)
 				
 				print "<3--------------------------------SUCCESS--------------------------------<3"
 		
@@ -164,6 +190,7 @@ class StdOutListener(StreamListener):
 		print 'Stream disconnected; continuing...'
 
 try:
+	# connect to mysql DB 
 	cnx = mysql.connector.connect(**config)
 	print "connection established"
 
@@ -171,7 +198,6 @@ try:
 	l = StdOutListener()
 	auth = OAuthHandler(consumerKey, consumerSecret)
 	auth.set_access_token(accessKey, accessToken)
-
 	stream = Stream(auth, l)
 
 	print("Listening to filter stream...")
