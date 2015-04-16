@@ -18,6 +18,11 @@ from tweepy import Stream
 # mysql connector
 import mysql.connector
 
+# Alchemy API Key
+# 752f1ed251b75b7800b23a7cb73c4d9a0c0f9cfd
+from alchemyapi import AlchemyAPI
+alchemyapi = AlchemyAPI()
+
 
 # ------------------------End of Library Imports-----------------------------------------
 
@@ -35,6 +40,20 @@ config = {
   'database': 'PieDB',
   'raise_on_warnings': True,
 }
+
+# ------------------------End of DB credientials-----------------------------------------
+
+def analyzeSentiment(text):
+	myText = text
+	response = alchemyapi.sentiment("text", myText)
+	if response["docSentiment"]:
+		sentScore = response["docSentiment"]["type"]
+		print "text: ", text
+		print "Sentiment: ", sentScore
+		return sentScore
+	else:
+		return 0
+
 
 class StdOutListener(StreamListener):
 
@@ -68,24 +87,34 @@ class StdOutListener(StreamListener):
 			print "X---------------------------------INVALID---------------------------------X"
 			print('%s\n%s\n%s\n%s\n%s\n\n ----------------\n' % (user, tweetId, tmstr, location, text))
 		else:		
-			# insertion work to table pitweets
-			tweetId = int(tweetId)
-			geoLat = location[0]
-			geoLong = location[1]
 
-			# building query and query data
-			qadd_one = ("INSERT INTO pietweets "
-               "(tweet_id, username, geo_lat, geo_long, text, timestamp) "
-               "VALUES (%s, %s, %s, %s, %s, %s)")
-			data_one = (tweetId, user, geoLat, geoLong, text, tmstr)
+			# sentiment analysis through alchemy API
+			score = analyzeSentiment(text)
 
-			# executing query
-			cursor.execute(qadd_one, data_one)
+			# only insert into DB if exist sentiment score
+			if score == 0:
+				print "No sentiment score ;_;"
+			else:
 
-			# Make sure data is committed to the database
-			cnx.commit()
-			
-			print "<3--------------------------------SUCCESS--------------------------------<3"
+
+				# insertion work to table pitweets
+				tweetId = int(tweetId)
+				geoLat = location[0]
+				geoLong = location[1]
+
+				# building query and query data
+				qadd_one = ("INSERT INTO lemonpie "
+	               "(tweet_id, username, geo_lat, geo_long, text, timestamp) "
+	               "VALUES (%s, %s, %s, %s, %s, %s)")
+				data_one = (tweetId, user, geoLat, geoLong, text, tmstr)
+
+				# executing query
+				cursor.execute(qadd_one, data_one)
+
+				# Make sure data is committed to the database
+				cnx.commit()
+				
+				print "<3--------------------------------SUCCESS--------------------------------<3"
 		
 		# closing the cursor for this operation
 		cursor.close()
@@ -117,7 +146,7 @@ try:
 	for i in range(1000):
 		try:
 			# check out -180, -90, 180, 90
-			stream.filter(locations=[-179.9,-89.9,179.9,89.9])
+			stream.filter(track=["weather"], locations=[-179.9,-89.9,179.9,89.9])
 		except RuntimeError:
 			print "OHNOOOOO"
 			quit()
