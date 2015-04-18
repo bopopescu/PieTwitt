@@ -49,10 +49,9 @@ config = {
 }
 
 # SNS topic arn
-# kitkatTopic
-# topicarn = "arn:aws:sns:us-west-2:870592896542:kitkatTopic"
-# kitkatTopic2
-topicarn = "arn:aws:sns:us-west-2:870592896542:kitkatTopic2"
+# kitkat_SNS
+topicarn = "arn:aws:sns:us-east-1:870592896542:kitkat_SNS"
+
 
 # ------------------------End of DB credientials-----------------------------------------
 successCount = 0
@@ -93,7 +92,7 @@ def writeToSQS(q, geoLat, geoLong, sentimentStat, text):
 
 def publishToSNS(packageNum):
 	# connect to SNS for publishing to kitkatTopic
-	c = boto.sns.connect_to_region("us-west-2")
+	c = boto.sns.connect_to_region("us-east-1")
 	
 	message = "check out your SQS for three additional sentiments."
 	message_subject = "Package number:" + str(packageNum)
@@ -162,8 +161,8 @@ class StdOutListener(StreamListener):
 				cnx.commit()
 
 				# write sentiment result to SQS
-				conn = boto.sqs.connect_to_region("us-west-2")
-				q = conn.get_queue('kitkat')
+				conn = boto.sqs.connect_to_region("us-east-1")
+				q = conn.get_queue('kitkat_SQS')
 				writeToSQS(q, geoLat, geoLong, sentimentStat, text)
 
 				# publish to kitkatTopic every 5 success count

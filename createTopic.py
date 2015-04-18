@@ -1,8 +1,8 @@
 import boto.sns
 
-c = boto.sns.connect_to_region("us-west-2")
+c = boto.sns.connect_to_region("us-east-1")
 
-topicname = "kitkatTopic2"
+topicname = "kitkat_SNS"
 
 topicarn = c.create_topic(topicname)
 
