@@ -3,8 +3,8 @@ import mysql.connector
 
 # DB credentials
 config = {
-  'user': 'piemaster',
-  'password': 'piemaster123',
+  'user': 'piemain',
+  'password': 'piemain123',
   'host': 'piedb.chhtgdmxqekc.us-east-1.rds.amazonaws.com',
   'database': 'PieDB',
   'raise_on_warnings': True,
